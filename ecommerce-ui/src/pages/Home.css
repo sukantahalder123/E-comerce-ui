@@ -1,0 +1,49 @@
+body{
+
+background:#f8f8fc;
+
+}
+
+.category-section{
+
+padding:60px 8%;
+
+}
+
+.category-section h2{
+
+margin-bottom:30px;
+font-size:35px;
+
+}
+
+.category-grid{
+
+display:flex;
+gap:25px;
+flex-wrap:wrap;
+
+}
+
+.products{
+
+padding:60px 8%;
+
+}
+
+.products h2{
+
+margin-bottom:30px;
+font-size:35px;
+
+}
+
+.product-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+
+gap:30px;
+
+}

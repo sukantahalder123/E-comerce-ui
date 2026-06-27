@@ -1,0 +1,41 @@
+.success-page{
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+background:#f5f7fb;
+}
+
+.success-box{
+background:#fff;
+padding:50px;
+border-radius:20px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+max-width:500px;
+}
+
+.success-icon{
+font-size:70px;
+margin-bottom:20px;
+}
+
+.success-box h1{
+margin-bottom:15px;
+}
+
+.success-box p{
+margin-bottom:30px;
+color:#666;
+line-height:1.6;
+}
+
+.success-box button{
+padding:15px 35px;
+background:#6d28d9;
+color:#fff;
+border:none;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+}
