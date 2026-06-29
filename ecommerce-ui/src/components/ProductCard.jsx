@@ -1,5 +1,6 @@
+import { useState } from "react";
 import "./ProductCard.css";
-import { FaStar, FaShoppingCart } from "react-icons/fa";
+import { FaStar, FaShoppingCart, FaCheck } from "react-icons/fa";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 
@@ -10,13 +11,25 @@ export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
+  const [added, setAdded] = useState(false);
+  const [animate, setAnimate] = useState(false);
+
   const handleAddToCart = (e) => {
-  e.stopPropagation();
+    e.stopPropagation();
 
-  console.log(product);
+    addToCart(product);
 
-  addToCart(product);
-};
+    setAnimate(true);
+    setAdded(true);
+
+    setTimeout(() => {
+      setAnimate(false);
+    }, 250);
+
+    setTimeout(() => {
+      setAdded(false);
+    }, 1500);
+  };
 
   const handleProductClick = () => {
     navigate(`/product/${product.id}`);
@@ -50,9 +63,12 @@ export default function ProductCard({ product }) {
         <button
           type="button"
           onClick={handleAddToCart}
+          className={`cart-btn ${animate ? "clicked" : ""} ${
+            added ? "added" : ""
+          }`}
         >
-          <FaShoppingCart />
-          Add To Cart
+          {added ? <FaCheck /> : <FaShoppingCart />}
+          {added ? " Added" : " Add To Cart"}
         </button>
       </div>
     </div>

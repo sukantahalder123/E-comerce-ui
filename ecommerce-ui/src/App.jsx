@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
 import Home from "./pages/Home";
@@ -13,35 +13,132 @@ import Signup from "./pages/Signup";
 import ProductDetails from "./pages/ProductDetails";
 import Profile from "./pages/Profile";
 
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
+  const token = localStorage.getItem("access_token");
+
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
 
-      <Route path="/cart" element={<Cart />} />
+      {/* Public Routes */}
 
-      <Route path="/checkout" element={<Checkout />} />
+      <Route
+        path="/login"
+        element={
+          token
+            ? <Navigate to="/" replace />
+            : <Login />
+        }
+      />
 
-      <Route path="/payment" element={<Payment />} />
+      <Route
+        path="/signup"
+        element={
+          token
+            ? <Navigate to="/" replace />
+            : <Signup />
+        }
+      />
 
-      <Route path="/success" element={<Success />} />
+      {/* Protected Routes */}
 
-      <Route path="/orders" element={<Orders />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/checkout"
+        element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/payment"
+        element={
+          <ProtectedRoute>
+            <Payment />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/success"
+        element={
+          <ProtectedRoute>
+            <Success />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <Orders />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/tracking/:orderId"
-        element={<Tracking />}
+        element={
+          <ProtectedRoute>
+            <Tracking />
+          </ProtectedRoute>
+        }
       />
 
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/profile" element={<Profile />} />
-     <Route
-  path="/product/:productId"
-  element={<ProductDetails />}
-/>
+      <Route
+        path="/product/:productId"
+        element={
+          <ProtectedRoute>
+            <ProductDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Unknown Route */}
+
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
+
     </Routes>
   );
 }

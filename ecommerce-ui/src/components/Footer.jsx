@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="footer-container">
 
         <div className="footer-box">
-          <h2>ShopZone</h2>
+          <h2>Easymart</h2>
           <p>
             Fresh Grocery & Daily Essentials at the best price.
           </p>

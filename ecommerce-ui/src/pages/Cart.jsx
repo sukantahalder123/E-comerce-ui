@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+// import { useEffect } from "react";
 import {
   FaTrash,
   FaHeart,
@@ -19,16 +20,30 @@ const PLACEHOLDER =
 export default function Cart() {
   const {
     cart,
+    loading,
+    // loadCart,
     increaseQty,
     decreaseQty,
     removeFromCart,
   } = useCart();
 
+  // useEffect(() => {
+  //   loadCart();
+  // }, []);
+
   const subtotal = cart.reduce(
     (sum, item) =>
-      sum + Number(item.price) * item.qty,
+      sum + Number(item.price) * item.quantity,
     0
   );
+
+  if (loading) {
+  return (
+    <div className="empty-cart">
+      <h2>Loading Cart...</h2>
+    </div>
+  );
+}
 
   const shipping = subtotal > 999 ? 0 : 99;
 
@@ -36,7 +51,7 @@ export default function Cart() {
 
   const total = subtotal + shipping - discount;
 
-  if (cart.length === 0) {
+  if (!loading && cart.length === 0) {
     return (
       <div className="empty-cart">
 
@@ -82,145 +97,138 @@ export default function Cart() {
 
         {cart.map((item) => (
 
-  <div
-    className="cart-card"
-    key={item.id}
-  >
+          <div
+            className="cart-card"
+            key={item.cart_id}
+          >
 
-    {/* Product Image */}
+            {/* Product Image */}
 
-    <div className="cart-image">
+            <div className="cart-image">
 
-      <img
-        src={
-          item.image_url ||
-          PLACEHOLDER
-        }
-        alt={item.product_name}
-      />
+              <img
+                src={
+                  item.image_url ||
+                  PLACEHOLDER
+                }
+                alt={item.product_name}
+              />
 
-      <span className="offer">
-        20% OFF
-      </span>
+              <span className="offer">
+                20% OFF
+              </span>
 
-    </div>
+            </div>
 
-    {/* Product Info */}
+            {/* Product Info */}
 
-    <div className="cart-info">
+            <div className="cart-info">
 
-      <h2>{item.product_name}</h2>
+              <h2>{item.product_name}</h2>
 
-      <p>
-        <strong>Brand :</strong> {item.brand}
-      </p>
+              <p>
+                <strong>Brand :</strong> {item.brand}
+              </p>
 
-      <p>
-        <strong>Category :</strong> {item.category}
-      </p>
+              <p>
+                <strong>Category :</strong> {item.category}
+              </p>
 
-      <div className="rating">
+              <div className="rating">
 
-        ⭐⭐⭐⭐⭐
+                ⭐⭐⭐⭐⭐
 
-        <span>(4.8)</span>
+                <span>(4.8)</span>
 
-      </div>
+              </div>
 
-      <span className="stock">
+              <span className="stock">
 
-        <FaTruck />
+                <FaTruck />
 
-        Free Delivery Available
+                Free Delivery Available
 
-      </span>
+              </span>
 
-      <p className="delivery-date">
+              <p className="delivery-date">
 
-        Estimated Delivery :
+                Estimated Delivery :
 
-        <strong> Tomorrow</strong>
+                <strong> Tomorrow</strong>
 
-      </p>
+              </p>
 
-      <div className="qty">
+              <div className="qty">
 
-        <button
-          onClick={() =>
-            decreaseQty(item.id)
-          }
-        >
+                <button
+                  onClick={() => decreaseQty(item)}
+                >
 
-          <FaMinus />
+                  <FaMinus />
 
-        </button>
+                </button>
 
-        <span>
+                <span>
 
-          {item.qty}
+                  {item.quantity}
 
-        </span>
+                </span>
 
-        <button
-          onClick={() =>
-            increaseQty(item.id)
-          }
-        >
+                <button
+                  onClick={() => increaseQty(item)}
+                >
 
-          <FaPlus />
+                  <FaPlus />
 
-        </button>
+                </button>
 
-      </div>
+              </div>
 
-    </div>
+            </div>
 
-    {/* Price */}
+            {/* Price */}
 
-    <div className="price-box">
+            <div className="price-box">
 
-      <small className="old-price">
+              <small className="old-price">
 
-        ₹
-        {(Number(item.price) * 1.2).toFixed(2)}
+                ₹
+                {(Number(item.price) * item.quantity).toFixed(2)}
 
-      </small>
+              </small>
 
-      <h2>
+              <h2>
 
-        ₹
-        {(Number(item.price) * item.qty).toFixed(2)}
+                ₹
+                {(Number(item.price) * item.quantity).toFixed(2)}
 
-      </h2>
+              </h2>
 
-      <button className="wishlist">
+              <button className="wishlist">
 
-        <FaHeart />
+                <FaHeart />
 
-      </button>
+              </button>
 
-      <button className="save-btn">
+              <button className="save-btn">
 
-        Save For Later
+                Save For Later
 
-      </button>
+              </button>
 
-      <button
-        className="delete"
-        onClick={() =>
-          removeFromCart(item.id)
-        }
-      >
+              <button
+                onClick={() => removeFromCart(item.cart_id)}
+              >
 
-        <FaTrash />
+                <FaTrash />
 
-      </button>
+              </button>
 
-    </div>
+            </div>
 
-  </div>
+          </div>
 
-))}
+        ))}
 
       </div>
 

@@ -1,32 +1,87 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
 import "./Login.css";
 
 export default function Login() {
   const navigate = useNavigate();
 
+  const API_URL =
+    "https://e-com-backend-gules-six.vercel.app/auth?action=login";
+
   const [showPassword, setShowPassword] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
+    portal: "customer",
   });
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
+    setForm((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Backend API call yahan aayega
-    console.log(form);
+    try {
+      setLoading(true);
 
-    navigate("/");
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Login Failed"
+        );
+      }
+
+      // Store Tokens
+
+      localStorage.setItem(
+        "access_token",
+        data.access_token
+      );
+
+      localStorage.setItem(
+        "refresh_token",
+        data.refresh_token
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+      );
+
+      alert("Login Successful");
+
+      navigate("/");
+
+    } catch (err) {
+      console.error(err);
+
+      alert(err.message);
+
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,6 +96,7 @@ export default function Login() {
         <form onSubmit={handleLogin}>
 
           <div className="input-box">
+
             <FaEnvelope />
 
             <input
@@ -51,6 +107,7 @@ export default function Login() {
               onChange={handleChange}
               required
             />
+
           </div>
 
           <div className="input-box">
@@ -58,7 +115,11 @@ export default function Login() {
             <FaLock />
 
             <input
-              type={showPassword ? "text" : "password"}
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
               name="password"
               placeholder="Password"
               value={form.password}
@@ -81,13 +142,19 @@ export default function Login() {
 
           </div>
 
-          <button className="login-btn">
-            Login
+          <button
+            className="login-btn"
+            disabled={loading}
+          >
+            {loading
+              ? "Signing In..."
+              : "Login"}
           </button>
 
         </form>
 
         <p className="bottom-text">
+
           Don't have an account?
 
           <Link to="/signup">

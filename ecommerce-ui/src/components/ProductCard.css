@@ -80,3 +80,49 @@ transition:.3s;
 .product-info button:hover{
 background:#5b21b6;
 }
+
+/* ===========================
+   Add To Cart Animation
+=========================== */
+
+.product-info button{
+cursor:pointer;
+transition:
+background .25s ease,
+transform .2s ease,
+box-shadow .25s ease;
+}
+
+.product-info button:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(109,40,217,.25);
+}
+
+.product-info button.clicked{
+transform:scale(.94);
+}
+
+.product-info button.added{
+background:#22c55e;
+animation:addedPulse .35s ease;
+}
+
+.product-info button.added:hover{
+background:#16a34a;
+}
+
+@keyframes addedPulse{
+
+0%{
+transform:scale(.9);
+}
+
+50%{
+transform:scale(1.06);
+}
+
+100%{
+transform:scale(1);
+}
+
+}

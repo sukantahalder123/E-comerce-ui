@@ -11,10 +11,6 @@ import {
   FaTimes,
   FaCog,
   FaSignOutAlt,
-  FaBell,
-  FaHeart,
-  FaMoon,
-  FaSun,
 } from "react-icons/fa";
 
 import { useCart } from "../context/CartContext";
@@ -25,40 +21,113 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const { cart } = useCart();
-
+  const [cartAnimate, setCartAnimate] = useState(false);
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
-  const [showSuggestion, setShowSuggestion] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [showSuggestion, setShowSuggestion] =
+    useState(false);
 
-  const [showProfile, setShowProfile] = useState(false);
+  const [menuOpen, setMenuOpen] =
+    useState(false);
+
+  const [showProfile, setShowProfile] =
+    useState(false);
+
+  const user =
+    JSON.parse(localStorage.getItem("user")) || {
+      first_name: "Customer",
+      last_name: "",
+      role: "customer",
+    };
+
+  const totalItems = cart.reduce(
+    (sum, item) => sum + Number(item.quantity || 0),
+    0
+  );
 
   useEffect(() => {
     getProducts();
   }, []);
 
+  useEffect(() => {
+    if (totalItems > 0) {
+      setCartAnimate(true);
+
+      const timer = setTimeout(() => {
+        setCartAnimate(false);
+      }, 350);
+
+      return () => clearTimeout(timer);
+    }
+  }, [totalItems]);
+
   async function getProducts() {
     try {
       const res = await axios.get(
-        "https://e-com-backend-gules-six.vercel.app/products/getAllproduct"
+        "https://e-com-backend-gules-six.vercel.app/products?action=list"
       );
 
       setProducts(res.data.products || []);
+
     } catch (err) {
       console.log(err);
     }
   }
 
-  const filteredProducts = products.filter((item) =>
-    item.product_name
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  // Logout
+  const handleLogout = async () => {
+    try {
 
-  const totalItems = cart.reduce(
-    (sum, item) => sum + item.qty,
-    0
-  );
+      const token =
+        localStorage.getItem("access_token");
+
+      await fetch(
+        "https://e-com-backend-gules-six.vercel.app/products?action=list",
+        {
+          method: "POST",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+    } catch (err) {
+
+      console.log(err);
+
+    } finally {
+
+      localStorage.removeItem(
+        "access_token"
+      );
+
+      localStorage.removeItem(
+        "refresh_token"
+      );
+
+      localStorage.removeItem(
+        "user"
+      );
+
+      navigate("/login", {
+        replace: true,
+      });
+
+    }
+  };
+
+  const filteredProducts =
+    products.filter((item) =>
+      item.product_name
+        ?.toLowerCase()
+        .includes(search.toLowerCase())
+    );
+
+  // const totalItems = cart.reduce(
+  //   (sum, item) => sum + Number(item.quantity || 0),
+  //   0
+  // );
 
   return (
     <header className="navbar">
@@ -66,7 +135,11 @@ export default function Navbar() {
       {/* Logo */}
 
       <div className="logo">
-        <Link to="/">Easymart</Link>
+
+        <Link to="/">
+          Easymart
+        </Link>
+
       </div>
 
       {/* Search */}
@@ -81,68 +154,83 @@ export default function Navbar() {
             type="text"
             placeholder="Search Products..."
             value={search}
-            onFocus={() => setShowSuggestion(true)}
-            onChange={(e) => setSearch(e.target.value)}
+            onFocus={() =>
+              setShowSuggestion(true)
+            }
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
           />
 
         </div>
 
-        {showSuggestion && search.length > 0 && (
+        {showSuggestion &&
+          search.length > 0 && (
 
-          <div className="search-result">
+            <div className="search-result">
 
-            {filteredProducts.length === 0 && (
-              <p style={{ padding: 15 }}>
-                No Product Found
-              </p>
-            )}
+              {filteredProducts.length ===
+                0 && (
+                  <p
+                    style={{
+                      padding: 15,
+                    }}
+                  >
+                    No Product Found
+                  </p>
+                )}
 
-            {filteredProducts
-              .slice(0, 6)
-              .map((item) => (
+              {filteredProducts
+                .slice(0, 6)
+                .map((item) => (
 
-                <div
-                  key={item.product_id}
-                  className="search-item"
-                  onClick={() => {
-                    navigate(`/product/${item.product_id}`);
+                  <div
+                    key={item.id}
+                    className="search-item"
+                    onClick={() => {
 
-                    setSearch("");
+                      navigate(
+                        `/product/${item.id}`
+                      );
 
-                    setShowSuggestion(false);
-                  }}
-                >
+                      setSearch("");
 
-                  <img
-                    src={
-                      item.image_url ||
-                      "https://via.placeholder.com/60"
-                    }
-                    alt=""
-                  />
+                      setShowSuggestion(
+                        false
+                      );
 
-                  <div>
+                    }}
+                  >
 
-                    <h4>{item.product_name}</h4>
+                    <img
+                      src={
+                        item.image_url ||
+                        "https://via.placeholder.com/60"
+                      }
+                      alt=""
+                    />
 
-                    <span>
+                    <div>
 
-                      ₹ {item.price}
+                      <h4>
+                        {item.product_name}
+                      </h4>
 
-                    </span>
+                      <span>
+                        ₹ {item.price}
+                      </span>
+
+                    </div>
 
                   </div>
 
-                </div>
+                ))}
 
-              ))}
+            </div>
 
-          </div>
-
-        )}
+          )}
 
       </div>
-
       {/* Desktop Menu */}
 
       <nav
@@ -166,24 +254,21 @@ export default function Navbar() {
         </Link>
 
         {/* Cart */}
-
         <Link
-  to="/cart"
-  className="cart-btn"
->
-  <FaShoppingCart />
+          to="/cart"
+          className={`cart-btn ${cartAnimate ? "cart-bounce" : ""}`}
+        >
+          <FaShoppingCart size={24} color="red" />
 
-  {totalItems > 0 && (
-
-    <span>
-
-      {totalItems}
-
-    </span>
-
-  )}
-
-</Link>
+          {totalItems > 0 && (
+            <span className="cart-count">
+              {totalItems}
+            </span>
+          )}
+          <div style={{ color: "red", fontSize: "40px" }}>
+            <FaShoppingCart />
+          </div>
+        </Link>
 
         {/* Profile */}
 
@@ -208,17 +293,17 @@ export default function Navbar() {
 
                 <img
                   src="https://i.pravatar.cc/120?img=12"
-                  alt=""
+                  alt="profile"
                 />
 
                 <div>
 
-                  <h4>Sukanta Halder</h4>
+                  <h4>
+                    {user.first_name} {user.last_name}
+                  </h4>
 
                   <span>
-
-                    Premium Customer
-
+                    {user.role || "Customer"}
                   </span>
 
                 </div>
@@ -268,13 +353,7 @@ export default function Navbar() {
 
               <button
                 className="logout-btn"
-                onClick={() => {
-
-                  localStorage.removeItem("token");
-
-                  navigate("/login");
-
-                }}
+                onClick={handleLogout}
               >
 
                 <FaSignOutAlt />
@@ -291,7 +370,7 @@ export default function Navbar() {
 
       </nav>
 
-      {/* Mobile */}
+      {/* Mobile Menu */}
 
       <button
         className="menu-btn"
@@ -301,13 +380,19 @@ export default function Navbar() {
       >
 
         {menuOpen ? (
+
           <FaTimes />
+
         ) : (
+
           <FaBars />
+
         )}
 
       </button>
 
     </header>
+
   );
+
 }
